@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在线随机抽签摇号工具，支持随机抽签、随机点名、自定义名单导入、随机数字摇号、分组抽签，手机电脑自适应">
+    <meta name="keywords" content="随机抽签,随机点名,摇号器,分组抽签,在线抽签">
+    <meta name="author" content="在线抽签摇号">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="在线随机抽签摇号">
+    <meta property="og:description" content="免费在线随机抽签摇号工具，支持多种抽签模式">
+    <meta property="og:type" content="website">
+    <title>在线随机抽签摇号 - 免费工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 1px solid #eee;
+            overflow-x: auto;
+        }
+        .tab {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+        .tab:hover {
+            background: #e8e8e8;
+        }
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .result {
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            word-break: break-all;
+        }
+        .result.animating {
+            animation: shake 0.1s infinite;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        textarea, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #ff5252;
+        }
+        .range-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .range-group input {
+            flex: 1;
+        }
+        .history {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .history h3 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .history-item {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+        .group-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .group-card {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .group-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .group-members {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 22px;
+            }
+            .result {
+                font-size: 36px;
+                min-height: 100px;
+            }
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            .tabs {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎲 在线随机抽签摇号</h1>
+            <p class="subtitle">免费、简单、好用的抽签工具</p>
+        </header>
+        <div class="tabs">
+            <button class="tab active" data-tab="draw">随机抽签</button>
+            <button class="tab" data-tab="call">随机点名</button>
+            <button class="tab" data-tab="number">数字摇号</button>
+            <button class="tab" data-tab="group">分组抽签</button>
+        </div>
+        <div class="content">
+            <div class="tab-content active" id="draw">
+                <div class="result" id="drawResult">点击开始</div>
+                <div class="input-group">
+                    <label>抽签名单（每行一个）</label>
+                    <textarea id="drawList" placeholder="张三&#10;李四&#10;王五&#10;赵六&#10;钱七"></textarea>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="startDraw()">开始抽签</button>
+                    <button class="btn btn-secondary" onclick="stopDraw()">停止</button>
+                    <button class="btn btn-danger" onclick="resetDraw()">重置</button>
+                </div>
+                <div class="history">
+                    <h3>历史记录</h3>
+                    <div class="history-list" id="drawHistory"></div>
+                </div>
+            </div>
+            <div class="tab-content" id="call">
+                <div class="result" id="callResult">点击开始</div>
+                <div class="input-group">
+                    <label>点名名单（每行一个）</label>
+                    <textarea id="callList" placeholder="张三&#10;李四&#10;王五&#10;赵六&#10;钱七"></textarea>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="startCall()">开始点名</button>
+                    <button class="btn btn-secondary" onclick="stopCall()">停止</button>
+                    <button class="btn btn-danger" onclick="resetCall()">重置</button>
+                </div>
+                <div class="history">
+                    <h3>历史记录</h3>
+                    <div class="history-list" id="callHistory"></div>
+                </div>
+            </div>
+            <div class="tab-content" id="number">
+                <div class="result" id="numberResult">点击开始</div>
+                <div class="input-group">
+                    <label>摇号范围</label>
+                    <div class="range-group">
+                        <input type="number" id="minNum" value="1" min="1">
+                        <span>至</span>
+                        <input type="number" id="maxNum" value="100" min="1">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>生成数量</label>
+                    <input type="number" id="numCount" value="1" min="1">
+                </div>
+                <div class="input-group">
+                    <label><input type="checkbox" id="noRepeat"> 不重复</label>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="startNumber()">开始摇号</button>
+                    <button class="btn btn-secondary" onclick="stopNumber()">停止</button>
+                    <button class="btn btn-danger" onclick="resetNumber()">重置</button>
+                </div>
+                <div class="history">
+                    <h3>历史记录</h3>
+                    <div class="history-list" id="numberHistory"></div>
+                </div>
+            </div>
+            <div class="tab-content" id="group">
+                <div class="result" id="groupResult">点击开始</div>
+                <div class="input-group">
+                    <label>分组名单（每行一个）</label>
+                    <textarea id="groupList" placeholder="张三&#10;李四&#10;王五&#10;赵六&#10;钱七&#10;孙八&#10;周九&#10;吴十"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>分组数量</label>
+                    <input type="number" id="groupCount" value="2" min="1">
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="startGroup()">开始分组</button>
+                    <button class="btn btn-danger" onclick="resetGroup()">重置</button>
+                </div>
+                <div class="group-results" id="groupResults"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let drawInterval, callInterval, numberInterval;
+        let drawHistory = [];
+        let callHistory = [];
+        let numberHistory = [];
+        let usedNumbers = new Set();
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+
+        function getList(textareaId) {
+            const text = document.getElementById(textareaId).value;
+            return text.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+        }
+
+        function startDraw() {
+            const list = getList('drawList');
+            if (list.length === 0) {
+                alert('请先输入抽签名单！');
+                return;
+            }
+            const resultEl = document.getElementById('drawResult');
+            resultEl.classList.add('animating');
+            drawInterval = setInterval(() => {
+                resultEl.textContent = list[Math.floor(Math.random() * list.length)];
+            }, 50);
+        }
+
+        function stopDraw() {
+            if (drawInterval) {
+                clearInterval(drawInterval);
+                drawInterval = null;
+                const resultEl = document.getElementById('drawResult');
+                resultEl.classList.remove('animating');
+                if (resultEl.textContent !== '点击开始') {
+                    drawHistory.unshift(resultEl.textContent);
+                    if (drawHistory.length > 10) drawHistory.pop();
+                    updateHistory('drawHistory', drawHistory);
+                }
+            }
+        }
+
+        function resetDraw() {
+            stopDraw();
+            document.getElementById('drawResult').textContent = '点击开始';
+            drawHistory = [];
+            updateHistory('drawHistory', drawHistory);
+        }
+
+        function startCall() {
+            const list = getList('callList');
+            if (list.length === 0) {
+                alert('请先输入点名名单！');
+                return;
+            }
+            const resultEl = document.getElementById('callResult');
+            resultEl.classList.add('animating');
+            callInterval = setInterval(() => {
+                resultEl.textContent = list[Math.floor(Math.random() * list.length)];
+            }, 50);
+        }
+
+        function stopCall() {
+            if (callInterval) {
+                clearInterval(callInterval);
+                callInterval = null;
+                const resultEl = document.getElementById('callResult');
+                resultEl.classList.remove('animating');
+                if (resultEl.textContent !== '点击开始') {
+                    callHistory.unshift(resultEl.textContent);
+                    if (callHistory.length > 10) callHistory.pop();
+                    updateHistory('callHistory', callHistory);
+                }
+            }
+        }
+
+        function resetCall() {
+            stopCall();
+            document.getElementById('callResult').textContent = '点击开始';
+            callHistory = [];
+            updateHistory('callHistory', callHistory);
+        }
+
+        function startNumber() {
+            const min = parseInt(document.getElementById('minNum').value);
+            const max = parseInt(document.getElementById('maxNum').value);
+            const count = parseInt(document.getElementById('numCount').value);
+            const noRepeat = document.getElementById('noRepeat').checked;
+
+            if (min > max) {
+                alert('最小值不能大于最大值！');
+                return;
+            }
+
+            if (noRepeat && (max - min + 1) < count) {
+                alert('范围内数字不足以生成指定数量的不重复数字！');
+                return;
+            }
+
+            const resultEl = document.getElementById('numberResult');
+            resultEl.classList.add('animating');
+
+            numberInterval = setInterval(() => {
+                const nums = [];
+                const tempUsed = new Set();
+                for (let i = 0; i < count; i++) {
+                    let num;
+                    do {
+                        num = Math.floor(Math.random() * (max - min + 1)) + min;
+                    } while (noRepeat && tempUsed.has(num));
+                    if (noRepeat) tempUsed.add(num);
+                    nums.push(num);
+                }
+                resultEl.textContent = nums.join(', ');
+            }, 50);
+        }
+
+        function stopNumber() {
+            if (numberInterval) {
+                clearInterval(numberInterval);
+                numberInterval = null;
+                const resultEl = document.getElementById('numberResult');
+                resultEl.classList.remove('animating');
+                if (resultEl.textContent !== '点击开始') {
+                    numberHistory.unshift(resultEl.textContent);
+                    if (numberHistory.length > 10) numberHistory.pop();
+                    updateHistory('numberHistory', numberHistory);
+                }
+            }
+        }
+
+        function resetNumber() {
+            stopNumber();
+            document.getElementById('numberResult').textContent = '点击开始';
+            numberHistory = [];
+            usedNumbers.clear();
+            updateHistory('numberHistory', numberHistory);
+        }
+
+        function startGroup() {
+            const list = getList('groupList');
+            const groupCount = parseInt(document.getElementById('groupCount').value);
+
+            if (list.length === 0) {
+                alert('请先输入分组名单！');
+                return;
+            }
+
+            if (groupCount < 1) {
+                alert('分组数量至少为1！');
+                return;
+            }
+
+            const shuffled = [...list].sort(() => Math.random() - 0.5);
+            const groups = Array.from({ length: groupCount }, () => []);
+
+            shuffled.forEach((item, index) => {
+                groups[index % groupCount].push(item);
+            });
+
+            const resultEl = document.getElementById('groupResult');
+            resultEl.textContent = '分组完成！';
+
+            const resultsEl = document.getElementById('groupResults');
+            resultsEl.innerHTML = '';
+            groups.forEach((group, index) => {
+                const card = document.createElement('div');
+                card.className = 'group-card';
+                card.innerHTML = `
+                    <div class="group-title">第${index + 1}组</div>
+                    <div class="group-members">${group.join('<br>')}</div>
+                `;
+                resultsEl.appendChild(card);
+            });
+        }
+
+        function resetGroup() {
+            document.getElementById('groupResult').textContent = '点击开始';
+            document.getElementById('groupResults').innerHTML = '';
+        }
+
+        function updateHistory(elId, history) {
+            const el = document.getElementById(elId);
+            el.innerHTML = history.map(item => `<span class="history-item">${item}</span>`).join('');
+        }
+    </script>
+</body>
+</html>
